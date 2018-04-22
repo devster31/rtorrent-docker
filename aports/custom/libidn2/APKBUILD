@@ -1,0 +1,45 @@
+# Contributor: Daniele Riccucci <daniele.riccucci@gmail.com>
+# Maintainer: Daniele Riccucci <daniele.riccucci@gmail.com>
+pkgname=libidn2
+pkgver=2.0.4
+pkgrel=2
+pkgdesc="Free software implementation of IDNA2008, Punycode and TR46"
+url="https://www.gnu.org/software/libidn/#libidn2"
+arch="all"
+license="GPL-2.0-or-later GPL-3.0-or-later LGPL-3.0-or-later"
+depends="libunistring"
+depends_dev="libunistring-dev"
+makedepends="$depends_dev automake autoconf gettext-dev libtool"
+checkdepends="diffutils"
+install=""
+subpackages="$pkgname-dev"
+source="https://ftp.gnu.org/gnu/libidn/$pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$pkgname-$pkgver"
+
+build() {
+	cd "$builddir"
+	autoreconf -fvi
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--disable-nls \
+		--disable-doc
+	make
+}
+
+check() {
+	cd "$builddir"
+	make check
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="1e51bd4b8f8907531576291f1c2a8865d17429b4105418b4c98754eb982cd1cbb3adbeab4ec0c1c561d2dba11d876c7c09e5dc5b315c55a2c24986d7a2a3b4d2  libidn2-2.0.4.tar.gz"
