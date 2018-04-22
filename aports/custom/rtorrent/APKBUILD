@@ -1,0 +1,100 @@
+# Contributor: Peter Bui <pnutzh4x0r@gmail.com>
+# Contributor: Sören Tempel <soeren+alpine@soeren-tempel.net>
+# Contributor: Bartłomiej Piotrowski <nospam@bpiotrowski.pl>
+# Maintainer: Jakub Jirutka <jakub@jirutka.cz>
+pkgname=rtorrent
+pkgver=0.9.6_git20180418
+pkgrel=0
+pkgdesc="Ncurses BitTorrent client based on libTorrent"
+url="http://rakshasa.github.io/rtorrent/"
+license="GPL"
+arch="all"
+depends="libtorrent"
+_depends_check="cppunit-dev"
+makedepends="$_depends_check libtorrent-dev libsigc++-dev curl-dev xmlrpc-c-advanced-dev ncurses-dev libtool autoconf automake"
+options="!check"
+subpackages="$pkgname-doc"
+#source="http://rtorrent.net/downloads/$pkgname-$pkgver.tar.gz"
+source="https://dl.bintray.com/devster31/generic/$pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$pkgname-$pkgver"
+
+giturl="https://github.com/rakshasa/rtorrent.git"
+disturl="https://api.bintray.com/content/devster31/generic"
+verbase=0.9.6
+
+snapshot() {
+	# check if we setup vars correctly
+	[ -z "$disturl" ] && warning "Missing disturl in APKBUILD, auto uploading disabled."
+	[ -z "$giturl" ] && die "Missing repository url in APKBUILD!"
+	local _date=$(date +%Y%m%d)
+	local _format="tar.gz"
+	local _version=${verbase:-0}_git${_date}
+	local _rev="${reporev:-HEAD}"
+	local _branch="${branch:-master}"
+	# remove any repositories left in srcdir
+	abuild clean
+	mkdir -p "$srcdir" && cd "$srcdir"
+	# clone git repo and archive
+	if [ -n "$giturl" ]; then
+		#local _version=${verbase:-0}_git${_date}
+		command -v git >/dev/null || \
+			die "Missing git! Install git to support git clone."
+		[ "$_rev" = "HEAD" ] && local _depth="--depth=1"
+		msg "Creating git snapshot: $pkgname-$_version"
+		git clone $_depth -b $_branch --bare $giturl $pkgname-$_version || return 1
+		git --git-dir $pkgname-$_version archive \
+			--format=$_format \
+			-o $pkgname-$_version.$_format \
+			--prefix=$pkgname-$_version/ $_rev \
+			|| return 1
+	fi
+	disturl="$disturl/$pkgname-$_version.$_format"
+	# upload to defined distfiles url
+	if [ -n "$disturl" ]; then
+		command -v curl >/dev/null || \
+			die "Missing curl! Install curl to enable automatic uploads."
+		msg "Uploading to $disturl"
+		curl -sS -T $pkgname-$_version.$_format \
+			-udevster31:$_bintray_api_key \
+			-H "X-Bintray-Package:$pkgname" \
+			-H "X-Bintray-Version:$_version" \
+			-H "X-Bintray-Publish:1" \
+			-H "X-Bintray-Override:1" \
+			$disturl
+		cd "$startdir"
+		# set the pkgver to current date and update checksum
+		sed -i -e "s/^pkgver=.*/pkgver=${_version}/" \
+			APKBUILD || return 1
+		abuild checksum
+	fi
+}
+
+build() {
+	cd "$builddir"
+	autoreconf -vif
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--enable-ipv6 \
+		--disable-debug \
+		--with-xmlrpc-c \
+		|| return 1
+	make || return 1
+}
+
+check() {
+	cd "$builddir"
+	make check
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install || return 1
+	install -Dm644 doc/rtorrent.rc "$pkgdir"/usr/share/doc/rtorrent/rtorrent.rc
+}
+
+sha512sums="cef7e52c170047dee3d053b43006167dac30af64407b8615e2c21b41680a080d633cec3fa8b9a37a7cb6e4462883a13a542ca4f0baed8a21e05aa085572d7ca2  rtorrent-0.9.6_git20180418.tar.gz"
