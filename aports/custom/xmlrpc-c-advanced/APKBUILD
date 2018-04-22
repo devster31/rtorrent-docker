@@ -1,0 +1,135 @@
+# Maintainer: Daniele Riccucci <daniele.riccucci@gmail.com>
+pkgname=xmlrpc-c-advanced
+pkgver=1.51.01
+pkgrel=0
+pkgdesc="This library provides a modular implementation of XML-RPC for C and C++"
+url="http://xmlrpc-c.sourceforge.net/"
+arch="all"
+license="BSD and MIT"
+depends=""
+depends_dev=""
+makedepends="$depends_dev libtool curl-dev zlib-dev"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-client $pkgname-tools
+	$pkgname-client++:clientxx xmlrpc-c++-advanced:cxx $pkgname-abyss"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+svnurl="http://svn.code.sf.net/p/xmlrpc-c/code/advanced"
+reporev="2984"
+disturl="https://api.bintray.com/content/devster31/generic"
+source="$pkgname-$pkgver.tar.gz::https://dl.bintray.com/devster31/generic/xmlrpc-c-advanced-$reporev.tar.gz"
+options="!check"
+
+snapshot() {
+	# check if we setup vars correctly
+	[ -z "$disturl" ] && warning "Missing disturl in APKBUILD, auto uploading disabled."
+	[ -z "$svnurl" ] && die "Missing repository url in APKBUILD!"
+	local _format="tar.gz"
+	local _version=${reporev:-0}
+	# remove any repositories left in srcdir
+	abuild clean
+	mkdir -p "$srcdir" && cd "$srcdir"
+	# export svn repo and archive
+	if [ -n "$svnurl" ]; then
+		command -v svn >/dev/null || \
+			die "Missing svn! Install subverion to support svn export."
+		[ -n "$reporev" ] && local _rev="-r $reporev"
+		msg "Creating svn snapshot: $pkgname-$pkgver r$_version"
+		svn co $_rev $svnurl $pkgname-$pkgver || return 1
+		tar zcf $pkgname-$_version.$_format \
+			--exclude-vcs \
+			--exclude=Windows \
+			$pkgname-$pkgver || return 1
+	fi
+	disturl="$disturl/$pkgname-$_version.$_format"
+	# upload to defined distfiles url
+	if [ -n "$disturl" ]; then
+		command -v curl >/dev/null || \
+			die "Missing curl! Install curl to enable automatic uploads."
+		msg "Uploading to $disturl"
+		cd "$startdir"
+		curl -T $srcdir/$pkgname-$_version.$_format \
+			-udevster31:$_bintray_api_key \
+			-H "X-Bintray-Package:$pkgname" \
+			-H "X-Bintray-Version:$_version" \
+			-H "X-Bintray-Publish:1" \
+			-H "X-Bintray-Override:1" \
+			$disturl
+		abuild checksum
+	fi
+}
+
+prepare() {
+	default_prepare
+	sed 's/xmlParserCtx /xmlParserCtxt/g' -i $builddir/src/xmlrpc_libxml2.c
+}
+
+build() {
+	cd "$builddir"
+	update_config_sub || return 1
+	export CXXFLAGS="$CXXFLAGS -std=gnu++98"
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--with-libwww-ssl \
+		--disable-cgi-server \
+		--disable-libwww-client \
+		--disable-wininet-client \
+		--enable-cplusplus \
+		|| return 1
+	make -j1 AR=ar RANLIB=ranlib || return 1
+}
+
+check() {
+	cd "$builddir"
+	make check
+}
+
+package() {
+	cd "$builddir"
+	make -j1 DESTDIR="$pkgdir" AR=ar RANLIB=ranlib install || return 1
+	make -j1 -C tools DESTDIR="$pkgdir-tools-src" AR=ar RANLIB=ranlib install || return 1
+	install -m 644 -D doc/COPYING "$pkgdir"/usr/share/licenses/$pkgname/COPYING
+}
+
+tools() {
+	pkgdesc="Handy tools such as the 'xmlrpc' command line XML-RPC client"
+	rm -fr "$pkgdir-tools-src"/usr/{include,lib,share}
+	mkdir -p "$subpkgdir"/usr/bin
+	mv "$pkgdir-tools-src"/usr/bin "$subpkgdir"/usr/bin/
+}
+
+client() {
+	replaces="$pkgname"
+	pkgdesc="C client libraries for xmlrpc-c"
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/libxmlrpc_client.so.* "$subpkgdir"/usr/lib/
+}
+
+clientxx() {
+	replaces="libxml-c++"
+	pkgdesc="C++ client libraries for xmlrpc-c"
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/libxmlrpc_client++.so.* "$subpkgdir"/usr/lib/
+}
+
+cxx() {
+	replaces="$pkgname"
+	pkgdesc="This library provides a modular implementation of XML-RPC for C++"
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/*++* \
+		"$pkgdir"/usr/lib/libxmlrpc_packetsocket.so.* \
+		"$pkgdir"/usr/lib/libxmlrpc_cpp.so.* \
+		"$subpkgdir"/usr/lib/
+}
+
+abyss() {
+	pkgdesc="Abyss server libraries for C++"
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/*abyss* \
+		"$subpkgdir"/usr/lib/
+}
+
+sha512sums="a7096b5fee19bf1c5fa931523d05be8e05bc2366ac7c1e6871ed2f5ab577c227e79e3b512937b7b94ad194fbb87a5d8fc1b57e2b158b7eae42fb1ddf67364038  xmlrpc-c-advanced-1.51.01.tar.gz"
