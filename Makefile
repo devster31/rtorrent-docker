@@ -49,9 +49,10 @@ ifeq ($(shell docker network inspect builder 2>/dev/null),[])
 	docker network create builder
 endif
 
-ifeq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
+ifneq ($(strip $(shell docker ps -q -f name=$(NAME)-repo --format '{{.Label "commit"}}')),$(TAG))
 	docker run -d \
 		--name=$(NAME)-repo \
+		--label commit="$(TAG)" \
 		--network=builder \
 		$(NAME)-repo:$(TAG)
 endif
