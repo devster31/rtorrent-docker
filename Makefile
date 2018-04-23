@@ -13,7 +13,8 @@ SHELL = /bin/bash
 # endif
 # TAG = $(shell $(DATE))
 
-TAG := $(shell date +"%Y%m%d")
+# TAG := $(shell date +"%Y%m%d")
+TAG := $(shell git rev-parse --short HEAD)
 
 NAME := $(notdir $(CURDIR))
 GIT_USER := $(shell git config --global user.name)
