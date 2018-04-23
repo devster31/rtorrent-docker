@@ -1,0 +1,8 @@
+#!/usr/bin/execlineb -P
+
+with-contenv
+s6-setuidgid abc
+importas -s opts RTORRENT_OPTS
+
+foreground { echo /usr/bin/rtorrent -n -o system.daemon.set=true ${opts} }
+/usr/bin/rtorrent -n -o system.daemon.set=true ${opts}

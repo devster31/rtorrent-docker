@@ -1,0 +1,42 @@
+# Build Alpine Package for rTorrent
+FROM alpine
+
+ARG repo
+ARG OVERLAY_VERSION="v1.21.4.0"
+ARG OVERLAY_ARCH="armhf"
+
+ENV TERM xterm-256color
+# How long (in ms) s6 should wait to reap zombies before sending a `KILL` signal
+# default = 3000
+ENV S6_KILL_GRACETIME 120000
+
+# The maximum time (in ms) a script in /etc/cont-finish.d could take before
+# sending a KILL signal to it. Take into account that this parameter will be
+# used per each script execution, it's not a max time for the whole set.
+# default = 5000
+# ENV S6_KILL_FINISH_MAXTIME
+
+RUN sed -i -e 's/v[[:digit:]]\.[[:digit:]]/edge/g' /etc/apk/repositories \
+    && apk upgrade --update-cache --no-cache --available \
+    && apk add --update-cache --no-cache \
+        bash \
+        shadow
+
+COPY abuild/*.pub /etc/apk/keys/
+RUN apk add --update-cache --no-cache \
+        --repository http://${repo}:8080/custom \
+            rtorrent
+
+RUN apk add --update-cache --no-cache \
+        --virtual=.makedeps-s6overlay \
+            curl \
+            tar \
+    && curl -L -s https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz \
+        | tar xzf - -C / \
+    && apk del --no-cache .makedeps-s6overlay \
+    && adduser -D -h /config -s /sbin/nologin -u 911 abc
+
+COPY root-rtorrent/ /
+
+ENTRYPOINT ["/init"]
+# CMD ["rtorrent"]
