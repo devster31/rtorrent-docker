@@ -1,0 +1,33 @@
+---
+networks:
+  rtorrent: {}
+
+services:
+  rtorrent:
+    container_name: rtorrent
+    environment:
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+      - "RTORRENT_OPTS=-o scgi_port=0.0.0.0:5000 -o import=/config/rtorrent.rc"
+      # - "RTORRENT_OPTS=-o system.daemon.set=true -o scgi_port=0.0.0.0:5000"
+      - "TZ=${TZ}"
+    image: rtorrent
+    networks:
+      - rtorrent
+    restart: unless-stopped
+    volumes:
+      - "${MOUNT}/downloads:${MOUNT}/downloads"
+  rutorrent:
+    container_name: rutorrent
+    environment:
+      - "PUID=${PUID}"
+      - "PGID=${PGID}"
+      - "RTORRENT_SCGI_HOST=rtorrent"
+      - "RTORRENT_SCGI_PORT=5000"
+      - "TZ=${TZ}"
+    image: rutorrent
+    networks:
+      - rtorrent
+    restart: unless-stopped
+    volumes:
+      - "${MOUNT}/rutorrent:/config"
