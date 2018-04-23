@@ -1,0 +1,5 @@
+#!/usr/bin/execlineb -P
+with-contenv
+importas -s opts PHP7_OPTS
+foreground { echo ${opts} }
+php-fpm7 -F ${opts}

@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+
+PUID=${PUID:-100}
+PGID=${PGID:-101}
+
+groupmod --non-unique --gid "$PGID" lighttpd
+usermod  --non-unique --uid "$PUID" lighttpd
+
+echo "
+-------------------------------------
+GID/UID
+-------------------------------------"
+echo "
+Lighttpd uid:    $(id -u lighttpd)
+Lighttpd gid:    $(id -g lighttpd)
+-------------------------------------"

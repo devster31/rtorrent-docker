@@ -1,0 +1,5 @@
+#!/usr/bin/execlineb -P
+with-contenv
+importas -D"-f /etc/lighttpd/lighttpd.conf" -s opts LIGHTTPD_OPTS
+foreground { echo ${opts} }
+lighttpd -D ${opts}
