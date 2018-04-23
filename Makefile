@@ -20,6 +20,8 @@ NAME := $(notdir $(CURDIR))
 GIT_USER := $(shell git config --global user.name)
 GIT_EMAIL := $(shell git config --global user.email)
 
+PORT ?= 8080
+
 .PHONY: repo rtorrent rutorrent
 build: repo rtorrent rutorrent
 
@@ -37,7 +39,12 @@ endif
 		.
 	@echo Image tag: $(NAME)-repo:$(TAG)
 
+ifeq ($(shell docker images -q $(NAME)-repo:$(TAG)),)
+rtorrent: repo
+else
 rtorrent:
+endif
+
 ifeq ($(shell docker network inspect builder 2>/dev/null),[])
 	docker network create builder
 endif
@@ -49,7 +56,6 @@ ifeq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
 		$(NAME)-repo:$(TAG)
 endif
 
-PORT ?= 8080
 	docker build \
 		--build-arg repo_url=$(NAME)-repo \
 		--build-arg repo_port=$(PORT) \
