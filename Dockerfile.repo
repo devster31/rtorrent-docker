@@ -1,0 +1,46 @@
+# Build repo and run darkhttpd to serve apk packages
+FROM alpine
+
+ARG git_user
+ARG git_email
+
+RUN apk add --update-cache --no-cache \
+        bash \
+        sudo \
+    && addgroup -S sudo \
+    && adduser -D -g "Build user" -G abuild -h /srv/abuild -s bash abuild \
+    && adduser abuild sudo \
+    && echo 'abuild ALL=(ALL:ALL) NOPASSWD: ALL' | \
+        EDITOR='tee -a' visudo -f /etc/sudoers.d/abuild \
+    && mkdir -p /var/cache/distfiles \
+    && chgrp abuild /var/cache/distfiles \
+    && chmod g+w /var/cache/distfiles
+
+RUN sed -i -e 's/v[[:digit:]]\.[[:digit:]]/edge/g' /etc/apk/repositories \
+    && apk upgrade --update-cache --no-cache --available \
+    && apk add --update-cache --no-cache \
+        alpine-sdk \
+        darkhttpd \
+        git \
+        lua-aports \
+        python3
+
+WORKDIR /srv/abuild
+USER abuild
+COPY --chown=abuild:abuild aports /srv/abuild/
+COPY --chown=abuild:abuild abuild /srv/abuild/.abuild
+RUN git config --global user.name "$git_name" \
+    && git config --global user.email "$git_email" \
+    && sudo cp ~/.abuild/*.pub /etc/apk/keys/
+
+# RUN git clone git://git.alpinelinux.org/aports \
+#     # && git apply \
+#     && git am \
+#         --whitespace=fix \
+#         --directory=aports \
+#         *.patch
+RUN buildrepo custom
+
+CMD ["darkhttpd", "/srv/abuild/packages"]
+EXPOSE  80
+
