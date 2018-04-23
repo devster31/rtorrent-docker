@@ -49,8 +49,10 @@ ifeq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
 		$(NAME)-repo:$(TAG)
 endif
 
+PORT ?= 8080
 	docker build \
-		--build-arg repo=$(NAME)-repo \
+		--build-arg repo_url=$(NAME)-repo \
+		--build-arg repo_port=$(PORT) \
 		--file Dockerfile.rtorrent \
 		--network builder \
 		--tag $(NAME):$(TAG) \

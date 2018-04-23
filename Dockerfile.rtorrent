@@ -1,7 +1,8 @@
 # Build Alpine Package for rTorrent
 FROM alpine
 
-ARG repo
+ARG repo_url
+ARG repo_port
 ARG OVERLAY_VERSION="v1.21.4.0"
 ARG OVERLAY_ARCH="armhf"
 
@@ -24,7 +25,7 @@ RUN sed -i -e 's/v[[:digit:]]\.[[:digit:]]/edge/g' /etc/apk/repositories \
 
 COPY abuild/*.pub /etc/apk/keys/
 RUN apk add --update-cache --no-cache \
-        --repository http://${repo}:8080/custom \
+        --repository http://${repo_url}:${repo_port}/custom \
             rtorrent
 
 RUN apk add --update-cache --no-cache \
