@@ -39,8 +39,8 @@ RUN git clone git://git.alpinelinux.org/aports
 #         --directory=aports \
 #         *.patch
 
-COPY --chown=abuild:abuild aports/rtorrent /srv/abuild/aports/
-RUN buildrepo custom
+COPY --chown=abuild:abuild aports/rtorrent /srv/abuild/aports/rtorrent/
+RUN buildrepo rtorrent
 
 CMD ["darkhttpd", "/srv/abuild/packages"]
 EXPOSE  80
