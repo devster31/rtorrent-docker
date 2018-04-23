@@ -27,18 +27,19 @@ RUN sed -i -e 's/v[[:digit:]]\.[[:digit:]]/edge/g' /etc/apk/repositories \
 
 WORKDIR /srv/abuild
 USER abuild
-COPY --chown=abuild:abuild aports /srv/abuild/
 COPY --chown=abuild:abuild abuild /srv/abuild/.abuild
 RUN git config --global user.name "$git_name" \
     && git config --global user.email "$git_email" \
     && sudo cp ~/.abuild/*.pub /etc/apk/keys/
 
-# RUN git clone git://git.alpinelinux.org/aports \
+RUN git clone git://git.alpinelinux.org/aports
 #     # && git apply \
 #     && git am \
 #         --whitespace=fix \
 #         --directory=aports \
 #         *.patch
+
+COPY --chown=abuild:abuild aports/rtorrent /srv/abuild/aports/
 RUN buildrepo custom
 
 CMD ["darkhttpd", "/srv/abuild/packages"]

@@ -23,6 +23,10 @@ GIT_EMAIL := $(shell git config --global user.email)
 build: repo rtorrent rutorrent
 
 repo:
+ifneq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
+	docker stop $(NAME)-repo
+	docker rm $(NAME)-repo
+endif
 	docker build \
 		--build-arg git_user=$(GIT_USER) \
 		--build-arg git_email=$(GIT_EMAIL) \
@@ -31,10 +35,6 @@ repo:
 		--tag $(NAME)-repo:$(TAG) \
 		.
 	@echo Image tag: $(NAME)-repo:$(TAG)
-ifneq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
-	docker stop $(NAME)-repo
-	docker rm $(NAME)-repo
-endif
 
 rtorrent:
 ifeq ($(shell docker network inspect builder 2>/dev/null),[])

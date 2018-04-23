@@ -1,8 +1,11 @@
+# Contributor: Daniele Riccucci <daniele.riccucci@gmail.com>
 # Contributor: Peter Bui <pnutzh4x0r@gmail.com>
 # Contributor: Bartłomiej Piotrowski <nospam@bpiotrowski.pl>
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=libtorrent
-pkgver=0.13.6_git20180418
+pkgver=0.13.6_git20161212
+_fullcommit="c167c5a9e0bcf0df23ae5efd91396aae0e37eb87"
+_commit="${_fullcommit:0:7}"
 pkgrel=0
 pkgdesc="BitTorrent library written in C++"
 url="http://rakshasa.github.io/rtorrent/"
@@ -12,60 +15,10 @@ _depends_check="cppunit-dev"
 makedepends="$_depends_check linux-headers zlib-dev libsigc++-dev libressl-dev libtool autoconf automake"
 options="!check"
 subpackages="$pkgname-dev"
-#source="http://rtorrent.net/downloads/$pkgname-$pkgver.tar.gz"
-source="https://dl.bintray.com/devster31/generic/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+builddir="$srcdir/$pkgname-$_fullcommit"
 
 giturl="https://github.com/rakshasa/libtorrent.git"
-disturl="https://api.bintray.com/content/devster31/generic"
-verbase=0.13.6
-
-snapshot() {
-	# check if we setup vars correctly
-	[ -z "$disturl" ] && warning "Missing disturl in APKBUILD, auto uploading disabled."
-	[ -z "$giturl" ] && die "Missing repository url in APKBUILD!"
-	local _date=$(date +%Y%m%d)
-	local _format="tar.gz"
-	local _version=${verbase:-0}_git${_date}
-	local _rev="${reporev:-HEAD}"
-	local _branch="${branch:-master}"
-	# remove any repositories left in srcdir
-	abuild clean
-	mkdir -p "$srcdir" && cd "$srcdir"
-	# clone git repo and archive
-	if [ -n "$giturl" ]; then
-		#local _version=${verbase:-0}_git${_date}
-		command -v git >/dev/null || \
-			die "Missing git! Install git to support git clone."
-		[ "$_rev" = "HEAD" ] && local _depth="--depth=1"
-		msg "Creating git snapshot: $pkgname-$_version"
-		git clone $_depth -b $_branch --bare $giturl $pkgname-$_version || return 1
-		git --git-dir $pkgname-$_version archive \
-			--format=$_format \
-			-o $pkgname-$_version.$_format \
-			--prefix=$pkgname-$_version/ $_rev \
-			|| return 1
-	fi
-	disturl="$disturl/$pkgname-$_version.$_format"
-	# upload to defined distfiles url
-	if [ -n "$disturl" ]; then
-		command -v curl >/dev/null || \
-			die "Missing curl! Install curl to enable automatic uploads."
-		msg "Uploading to $disturl"
-		curl -sS -T $pkgname-$_version.$_format \
-			-udevster31:$_bintray_api_key \
-			-H "X-Bintray-Package:$pkgname" \
-			-H "X-Bintray-Version:$_version" \
-			-H "X-Bintray-Publish:1" \
-			-H "X-Bintray-Override:1" \
-			$disturl
-		cd "$startdir"
-		# set the pkgver to current date and update checksum
-		sed -i -e "s/^pkgver=.*/pkgver=${_version}/" \
-			APKBUILD || return 1
-		abuild checksum
-	fi
-}
+source="$pkgname-$_fullcommit.tar.gz::https://github.com/rakshasa/$pkgname/archive/$_commit.tar.gz"
 
 build() {
 	cd "$builddir"
@@ -90,4 +43,4 @@ package() {
 	make DESTDIR="$pkgdir" install || return 1
 }
 
-sha512sums="3b23529c1b212bce9d2abb32b97b8b0bfa2e7f8f6232e6903853586cb1f5d9c591e0e86e39e4005addf46394250b6e397307a77f15fb97319a572cc0b7738f35  libtorrent-0.13.6_git20180418.tar.gz"
+sha512sums="fccf7cb15e464d93a3892f25e1ef121bc73c785e43b5fadb28b9d54de61348ae69ffc5a28bbca2f30966ddb5f16091622aad05cd9b70dae4b58b379f3f9f4630  libtorrent-c167c5a9e0bcf0df23ae5efd91396aae0e37eb87.tar.gz"

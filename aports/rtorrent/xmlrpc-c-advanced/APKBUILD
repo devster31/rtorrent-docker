@@ -1,63 +1,26 @@
 # Maintainer: Daniele Riccucci <daniele.riccucci@gmail.com>
 pkgname=xmlrpc-c-advanced
+reporev="2984"
+#pkgver=1.51.01_svn$reporev
 pkgver=1.51.01
+_fullcommit="248c060d847ea54c1d0779cad6f7f77cd8f7abc0"
+_commit="${_fullcommit:0:7}"
 pkgrel=0
 pkgdesc="This library provides a modular implementation of XML-RPC for C and C++"
 url="http://xmlrpc-c.sourceforge.net/"
 arch="all"
 license="BSD and MIT"
+options="!check"
 depends=""
 depends_dev=""
 makedepends="$depends_dev libtool curl-dev zlib-dev"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-client $pkgname-tools
 	$pkgname-client++:clientxx xmlrpc-c++-advanced:cxx $pkgname-abyss"
 
-builddir="$srcdir"/$pkgname-$pkgver
+builddir="$srcdir"/"${pkgname%%-advanced}-$_fullcommit"/advanced
 
 svnurl="http://svn.code.sf.net/p/xmlrpc-c/code/advanced"
-reporev="2984"
-disturl="https://api.bintray.com/content/devster31/generic"
-source="$pkgname-$pkgver.tar.gz::https://dl.bintray.com/devster31/generic/xmlrpc-c-advanced-$reporev.tar.gz"
-options="!check"
-
-snapshot() {
-	# check if we setup vars correctly
-	[ -z "$disturl" ] && warning "Missing disturl in APKBUILD, auto uploading disabled."
-	[ -z "$svnurl" ] && die "Missing repository url in APKBUILD!"
-	local _format="tar.gz"
-	local _version=${reporev:-0}
-	# remove any repositories left in srcdir
-	abuild clean
-	mkdir -p "$srcdir" && cd "$srcdir"
-	# export svn repo and archive
-	if [ -n "$svnurl" ]; then
-		command -v svn >/dev/null || \
-			die "Missing svn! Install subverion to support svn export."
-		[ -n "$reporev" ] && local _rev="-r $reporev"
-		msg "Creating svn snapshot: $pkgname-$pkgver r$_version"
-		svn co $_rev $svnurl $pkgname-$pkgver || return 1
-		tar zcf $pkgname-$_version.$_format \
-			--exclude-vcs \
-			--exclude=Windows \
-			$pkgname-$pkgver || return 1
-	fi
-	disturl="$disturl/$pkgname-$_version.$_format"
-	# upload to defined distfiles url
-	if [ -n "$disturl" ]; then
-		command -v curl >/dev/null || \
-			die "Missing curl! Install curl to enable automatic uploads."
-		msg "Uploading to $disturl"
-		cd "$startdir"
-		curl -T $srcdir/$pkgname-$_version.$_format \
-			-udevster31:$_bintray_api_key \
-			-H "X-Bintray-Package:$pkgname" \
-			-H "X-Bintray-Version:$_version" \
-			-H "X-Bintray-Publish:1" \
-			-H "X-Bintray-Override:1" \
-			$disturl
-		abuild checksum
-	fi
-}
+source="${pkgname%%-advanced}-$_fullcommit.tar.gz::https://github.com/mirror/xmlrpc-c/archive/$_commit.tar.gz"
 
 prepare() {
 	default_prepare
@@ -132,4 +95,4 @@ abyss() {
 		"$subpkgdir"/usr/lib/
 }
 
-sha512sums="a7096b5fee19bf1c5fa931523d05be8e05bc2366ac7c1e6871ed2f5ab577c227e79e3b512937b7b94ad194fbb87a5d8fc1b57e2b158b7eae42fb1ddf67364038  xmlrpc-c-advanced-1.51.01.tar.gz"
+sha512sums="4aea7c35b2fcf50208f71ecd54c76caebcd62bea7ac6353736029f713fd556813876baa56b36ae04cb76f202fcfd493721eb933663c278bacf93a2ae7ef0ae10  xmlrpc-c-248c060d847ea54c1d0779cad6f7f77cd8f7abc0.tar.gz"
