@@ -1,2 +1,0 @@
-/var/log/lighttpd true lighttpd,100:101 0644 0755
-/var/log/php7     true lighttpd,100:101 0644 0755
