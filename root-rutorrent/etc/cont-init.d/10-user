@@ -1,16 +1,16 @@
 #!/usr/bin/with-contenv bash
 
-PUID=${PUID:-100}
-PGID=${PGID:-101}
+PUID=${PUID:-82}
+PGID=${PGID:-82}
 
-groupmod --non-unique --gid "$PGID" lighttpd
-usermod  --non-unique --uid "$PUID" lighttpd
+groupmod --non-unique --gid "$PGID" www-data
+usermod  --non-unique --uid "$PUID" www-data
 
 echo "
 -------------------------------------
 GID/UID
 -------------------------------------"
 echo "
-Lighttpd uid:    $(id -u lighttpd)
-Lighttpd gid:    $(id -g lighttpd)
+Apache uid:    $(id -u lighttpd)
+Apache gid:    $(id -g lighttpd)
 -------------------------------------"

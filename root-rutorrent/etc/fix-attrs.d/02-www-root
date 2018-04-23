@@ -1,1 +1,0 @@
-/srv/www/rutorrent true lighttpd:www-data,100:101 0664 0775
