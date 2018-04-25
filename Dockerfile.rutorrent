@@ -17,7 +17,6 @@ RUN apk add --update-cache --no-cache \
             tar \
     && curl -L -s https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz \
         | tar xzf - -C /
-    #\ && adduser -D -h /config -s /sbin/nologin -u 911 abc
 
 RUN apk add --update-cache --no-cache \
         apache2-utils \
@@ -41,16 +40,11 @@ RUN apk add --update-cache --no-cache \
         php7-sysvsem \
         php7-xml \
         sox \
-        # sudo \
         tar \
         unrar \
         unzip \
         wget \
         zip \
-        # php7-cgi \
-        # php7-pear \
-        # php7-phar \
-        # php7-tokenizer \
     && mkdir -p /srv/www/rutorrent \
     && curl -L -s "https://github.com/Novik/ruTorrent/archive/master.tar.gz" \
         | tar -xzf - -C /srv/www/rutorrent --strip-components=1
