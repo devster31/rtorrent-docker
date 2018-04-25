@@ -11,6 +11,6 @@ echo "
 GID/UID
 -------------------------------------"
 echo "
-Apache uid:    $(id -u lighttpd)
-Apache gid:    $(id -g lighttpd)
+Apache uid:    $(id -u www-data)
+Apache gid:    $(id -g www-data)
 -------------------------------------"

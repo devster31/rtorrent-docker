@@ -1,5 +1,5 @@
 # Build Alpine Package for rTorrent
-FROM alpine
+FROM httpd:alpine
 
 ARG OVERLAY_VERSION="v1.21.4.0"
 ARG OVERLAY_ARCH="armhf"
@@ -20,8 +20,6 @@ RUN apk add --update-cache --no-cache \
     #\ && adduser -D -h /config -s /sbin/nologin -u 911 abc
 
 RUN apk add --update-cache --no-cache \
-        apache2 \
-        apache2-proxy \
         apache2-utils \
         coreutils \
         ffmpeg \

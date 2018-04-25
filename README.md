@@ -48,3 +48,16 @@ run '~/.tmux/plugins/tpm/tpm'" \
 >> ~/.tmux.conf \
     && ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 ```
+
+## HTTPD
+In Alpine the default Apache user is:
+```
+apache:apache
+100:101
+group exists for www-data, with GID 82
+```
+while in the `httpd:alpine` container the default user is:
+```
+www-data:www-data
+82:82
+```
