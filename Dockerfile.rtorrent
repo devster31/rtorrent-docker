@@ -21,7 +21,8 @@ RUN sed -i -e 's/v[[:digit:]]\.[[:digit:]]/edge/g' /etc/apk/repositories \
     && apk upgrade --update-cache --no-cache --available \
     && apk add --update-cache --no-cache \
         bash \
-        shadow
+        shadow \
+    && usermod -m -d /config www-data
 
 COPY abuild/*.pub /etc/apk/keys/
 RUN apk add --update-cache --no-cache \

@@ -17,4 +17,5 @@ services:
       - rtorrent
     restart: unless-stopped
     volumes:
+      - "${MOUNT}/docker/rtorrent:/config"
       - "${MOUNT}/downloads:${MOUNT}/downloads"
