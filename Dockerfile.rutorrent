@@ -25,7 +25,6 @@ RUN apk add --update-cache --no-cache \
         fcgi \
         geoip \
         gzip \
-        # lighttpd \
         mediainfo \
         php7 \
         php7-fpm \
@@ -51,6 +50,7 @@ RUN apk add --update-cache --no-cache \
 
 COPY root-rutorrent/ /
 COPY rutorrent.config.php /srv/www/rutorrent/conf/config.php
+COPY rutorrent.plugins.ini /srv/www/rutorrent/conf/plugins.ini
 
 ENTRYPOINT ["/init"]
 # CMD ["rtorrent"]
