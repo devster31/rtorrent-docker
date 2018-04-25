@@ -61,7 +61,7 @@ tools() {
 	pkgdesc="Handy tools such as the 'xmlrpc' command line XML-RPC client"
 	rm -fr "$pkgdir-tools-src"/usr/{include,lib,share}
 	mkdir -p "$subpkgdir"/usr/bin
-	mv "$pkgdir-tools-src"/usr/bin "$subpkgdir"/usr/bin/
+	mv "$pkgdir-tools-src"/usr/bin "$subpkgdir"/usr
 }
 
 client() {
