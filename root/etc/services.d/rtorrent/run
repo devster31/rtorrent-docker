@@ -1,7 +1,7 @@
 #!/usr/bin/execlineb -P
 
 with-contenv
-s6-setuidgid abc
+s6-setuidgid www-data
 importas -s opts RTORRENT_OPTS
 
 # importas -D"-n -o system.daemon.set=true" -s opts RTORRENT_OPTS
