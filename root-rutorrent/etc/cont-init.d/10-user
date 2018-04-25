@@ -14,3 +14,5 @@ echo "
 Apache uid:    $(id -u www-data)
 Apache gid:    $(id -g www-data)
 -------------------------------------"
+
+chown -R www-data:www-data /srv/www/rutorrent
