@@ -3,4 +3,4 @@ with-contenv
 
 # Apache gets grumpy about PID files pre-existing
 foreground { rm -f /usr/local/apache2/logs/httpd.pid }
-httpd -DFOREGROUND
+/usr/local/apache2/bin/httpd -DFOREGROUND
