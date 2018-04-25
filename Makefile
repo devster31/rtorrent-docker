@@ -22,8 +22,8 @@ GIT_EMAIL := $(shell git config --global user.email)
 
 PORT ?= 8080
 
-.PHONY: repo rtorrent rutorrent
-build: repo rtorrent rutorrent
+.PHONY: repo rtorrent
+build: repo rtorrent
 
 repo:
 ifneq ($(strip $(shell docker ps -q -f name=$(NAME)-repo)),)
@@ -65,10 +65,3 @@ endif
 		--tag $(NAME):$(TAG) \
 		.
 	@echo Image: $(NAME):$(TAG)
-
-rutorrent:
-	docker build \
-		--file Dockerfile.rutorrent \
-		--tag $(subst rtorrent,rutorrent,$(NAME)):$(TAG) \
-		.
-	@echo Image: $(subst rtorrent,rutorrent,$(NAME)):$(TAG)

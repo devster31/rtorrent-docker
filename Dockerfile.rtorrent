@@ -1,5 +1,5 @@
 # Build Alpine Package for rTorrent
-FROM alpine
+FROM httpd:alpine
 
 ARG repo_url
 ARG repo_port
@@ -29,15 +29,44 @@ RUN apk add --update-cache --no-cache \
             rtorrent
 
 RUN apk add --update-cache --no-cache \
-        --virtual=.makedeps-s6overlay \
             curl \
             tar \
     && curl -L -s https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz \
         | tar xzf - -C / \
-    && apk del --no-cache .makedeps-s6overlay \
-    && adduser -D -h /config -s /sbin/nologin -u 911 abc
 
-COPY root-rtorrent/ /
+RUN apk add --update-cache --no-cache \
+        apache2-utils \
+        coreutils \
+        ffmpeg \
+        fcgi \
+        geoip \
+        gzip \
+        mediainfo \
+        php7 \
+        php7-fpm \
+        php7-ctype \
+        php7-curl \
+        php7-dom \
+        php7-json  \
+        php7-iconv \
+        php7-mbstring \
+        php7-pdo_sqlite \
+        php7-posix \
+        php7-sysvsem \
+        php7-xml \
+        sox \
+        tar \
+        unrar \
+        unzip \
+        wget \
+        zip \
+    && mkdir -p /srv/www/rutorrent \
+    && curl -L -s "https://github.com/Novik/ruTorrent/archive/master.tar.gz" \
+        | tar -xzf - -C /srv/www/rutorrent --strip-components=1
+
+COPY root/ /
+COPY rutorrent.config.php /srv/www/rutorrent/conf/config.php
+COPY rutorrent.plugins.ini /srv/www/rutorrent/conf/plugins.ini
 
 ENTRYPOINT ["/init"]
 # CMD ["rtorrent"]

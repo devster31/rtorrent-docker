@@ -8,6 +8,7 @@ services:
     environment:
       - "PUID=${PUID}"
       - "PGID=${PGID}"
+      # - "RTORRENT_SCGI_PORT=5000"
       - "RTORRENT_OPTS=-o system.daemon.set=true -o import=/config/rtorrent.rc"
       # - "RTORRENT_OPTS=-o system.daemon.set=true -o scgi_port=0.0.0.0:5000"
       - "TZ=${TZ}"
@@ -17,17 +18,3 @@ services:
     restart: unless-stopped
     volumes:
       - "${MOUNT}/downloads:${MOUNT}/downloads"
-  rutorrent:
-    container_name: rutorrent
-    environment:
-      - "PUID=${PUID}"
-      - "PGID=${PGID}"
-      - "RTORRENT_SCGI_HOST=rtorrent"
-      - "RTORRENT_SCGI_PORT=5000"
-      - "TZ=${TZ}"
-    image: rutorrent
-    networks:
-      - rtorrent
-    restart: unless-stopped
-    volumes:
-      - "${MOUNT}/rutorrent:/config"
