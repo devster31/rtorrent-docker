@@ -10,7 +10,7 @@ services:
       - "PGID=${PGID}"
       # - "RTORRENT_SCGI_PORT=5000"
       - "RTORRENT_OPTS=-o system.daemon.set=true -o import=/config/rtorrent.rc"
-      # - "RTORRENT_OPTS=-o system.daemon.set=true -o scgi_port=0.0.0.0:5000"
+      # - "RTORRENT_OPTS=-o system.daemon.set=true -o network.scgi.open_port=0.0.0.0:5000"
       - "TZ=${TZ}"
     image: rtorrent
     networks:
