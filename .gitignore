@@ -1,2 +1,4 @@
 *.rsa
 .env
+*.vscode
+*.code-workspace
